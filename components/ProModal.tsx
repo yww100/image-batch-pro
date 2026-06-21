@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { Mail, Copy, CheckCircle2 } from 'lucide-react';
+import { Mail, Copy, CheckCircle2, ExternalLink } from 'lucide-react';
 import { activatePro, isProActive, isProAnnual, validateLicenseKey } from '@/lib/pro';
+import { getCheckoutUrl, hasLemonConfig } from '@/lib/lemon';
 
 interface ProModalProps {
   isOpen: boolean;
   onClose: () => void;
   plan?: 'monthly' | 'annual';
 }
-
-const PAYPAL_EMAIL = '945893243@qq.com';
-const SUPPORT_EMAIL = '945893243@qq.com';
 
 export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalProps) {
   const [code, setCode] = useState('');
@@ -32,8 +30,8 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
     }
   };
 
-  const copyEmail = () => {
-    navigator.clipboard.writeText(PAYPAL_EMAIL);
+  const copyCode = () => {
+    navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -41,6 +39,8 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
   const alreadyPro = isProActive() || isProAnnual();
   const price = selectedPlan === 'annual' ? 29 : 5;
   const period = selectedPlan === 'annual' ? 'year' : 'month';
+  const checkoutUrl = getCheckoutUrl(selectedPlan);
+  const lemonReady = hasLemonConfig() && checkoutUrl;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -98,62 +98,45 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
           </div>
         ) : (
           <div className="space-y-4">
-            { /* Payment steps */ }
-            <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-              <h3 className="font-semibold text-slate-900 text-sm">How to upgrade:</h3>
-              <ol className="text-sm text-slate-600 space-y-2 list-decimal list-inside">
-                <li>
-                  Send <strong className="text-slate-900">${price} USD</strong> via PayPal to:
-                </li>
-              </ol>
-              <button
-                onClick={copyEmail}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+            {lemonReady ? (
+              <a
+                href={checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors"
               >
-                {copied ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Mail className="w-4 h-4" />
-                    <span>{PAYPAL_EMAIL}</span>
-                    <Copy className="w-3.5 h-3.5 text-slate-400" />
-                  </>
-                )}
-              </button>
-              <p className="text-xs text-slate-500">
-                Note: PayPal may show "Sorry for the wait" for mainland China accounts. Try the PayPal app if the web page gets stuck.
-              </p>
-              <ol start={2} className="text-sm text-slate-600 space-y-2 list-decimal list-inside">
-                <li>Include note: <strong className="text-slate-900">"BatchImage Pro {selectedPlan === 'annual' ? 'Annual' : 'Monthly'}"</strong></li>
-                <li>
-                  Email your PayPal receipt to{' '}
-                  <a
-                    href={`mailto:${SUPPORT_EMAIL}?subject=BatchImage%20Pro%20${selectedPlan === 'annual' ? 'Annual' : 'Monthly'}%20Payment%20Proof&body=I%20have%20sent%20%24${price}%20USD%20for%20BatchImage%20Pro%20${selectedPlan === 'annual' ? 'Annual' : 'Monthly'}.%20Here%20is%20my%20receipt:`}
-                    className="text-brand-600 hover:underline font-medium"
-                  >
-                    {SUPPORT_EMAIL}
-                  </a>
-                </li>
-                <li>We'll reply with your Pro activation code within 24 hours.</li>
-              </ol>
-            </div>
+                Pay ${price} &amp; get instant license
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                Automatic checkout is being configured. Please check back soon or contact support.
+              </div>
+            )}
 
             { /* Activation */ }
             <div className="space-y-3 pt-2 border-t border-slate-100">
-              <p className="text-sm text-slate-600">Already have a code? Activate below:</p>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => {
-                  setCode(e.target.value);
-                  setStatus('idle');
-                }}
-                placeholder="BATCH-XXXX-XXXX"
-                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-center tracking-widest focus:border-brand-500 focus:outline-none"
-              />
+              <p className="text-sm text-slate-600">Already paid? Paste your license code:</p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => {
+                    setCode(e.target.value);
+                    setStatus('idle');
+                  }}
+                  placeholder="BATCH-XXXX-XXXX"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-center tracking-widest focus:border-brand-500 focus:outline-none"
+                />
+                {code && (
+                  <button
+                    onClick={copyCode}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {copied ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                )}
+              </div>
               {status === 'error' && (
                 <p className="text-sm text-red-600 text-center">Invalid license key.</p>
               )}
@@ -162,7 +145,8 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
               )}
               <button
                 onClick={handleActivate}
-                className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg transition-colors"
+                disabled={!code}
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white font-semibold rounded-lg transition-colors"
               >
                 Activate Pro
               </button>

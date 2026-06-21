@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import AdSenseScript from '@/components/AdSenseScript';
 
 export const metadata: Metadata = {
   title: 'BatchImage - Bulk Image Processing for E-commerce & Creators',
@@ -15,12 +16,12 @@ export const metadata: Metadata = {
     'shopify image optimization',
     'instagram image resize',
   ],
-  metadataBase: new URL('https://image-batch-67ws84lg7-yww1.vercel.app'),
+  metadataBase: new URL('https://image-batch-iuf1g8bfg-yww1.vercel.app'),
   openGraph: {
     title: 'BatchImage - Bulk Image Processing in Your Browser',
     description:
       'Compress, resize, convert, watermark, rename and export image batches privately. No upload required.',
-    url: 'https://image-batch-67ws84lg7-yww1.vercel.app',
+    url: 'https://image-batch-iuf1g8bfg-yww1.vercel.app',
     siteName: 'BatchImage',
     images: [
       {
@@ -47,8 +48,6 @@ export const metadata: Metadata = {
     google: 'ca-pub-9658414693188177',
   },
 };
-
-import AdSenseScript from '@/components/AdSenseScript';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
