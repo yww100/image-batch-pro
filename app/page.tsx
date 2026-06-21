@@ -6,11 +6,14 @@ import { Upload, Download, Zap, Crown, X, Image as ImageIcon, Shield, Lock, Gaug
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-import { processImage, ProcessedImage, ProcessOptions } from '@/lib/imageProcessor';
-import { getBatchLimit, isProActive } from '@/lib/pro';
+import { processImage, ProcessedImage, ProcessOptions, RenameOptions } from '@/lib/imageProcessor';
+import { getBatchLimit, isProActive, isProAnnual, canDownloadZip } from '@/lib/pro';
 import SettingsPanel from '@/components/SettingsPanel';
 import ImageList from '@/components/ImageList';
 import ProModal from '@/components/ProModal';
+import AdBoostModal from '@/components/AdBoostModal';
+import AdSlot from '@/components/AdSlot';
+import PricingSection from '@/components/PricingSection';
 
 const FEATURES = [
   {
@@ -25,15 +28,15 @@ const FEATURES = [
   },
   {
     icon: Shield,
-    title: 'Batch Power',
-    desc: 'Compress, resize, convert formats, and watermark — all in one streamlined workflow.',
+    title: 'Built for Creators',
+    desc: 'E-commerce and social media size templates plus batch rename in one workflow.',
   },
 ];
 
 const STATS = [
   { value: '0', label: 'Images leave your device' },
   { value: '500', label: 'Max images per Pro batch' },
-  { value: '3', label: 'Output formats: JPG, PNG, WebP' },
+  { value: '13+', label: 'E-commerce & social presets' },
 ];
 
 export default function Home() {
@@ -42,6 +45,9 @@ export default function Home() {
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showProModal, setShowProModal] = useState(false);
+  const [proModalPlan, setProModalPlan] = useState<'monthly' | 'annual'>('annual');
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [adModalReason, setAdModalReason] = useState<'limit' | 'zip'>('limit');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const demoRef = useRef<HTMLDivElement>(null);
@@ -51,21 +57,40 @@ export default function Home() {
     format: 'image/jpeg',
   });
 
+  const [rename, setRename] = useState<RenameOptions>({
+    pattern: '',
+    startIndex: 1,
+  });
+
+  const handleOptionsChange = useCallback((newOptions: ProcessOptions, newRename: RenameOptions) => {
+    setOptions(newOptions);
+    setRename(newRename);
+  }, []);
+
   const limit = getBatchLimit();
-  const pro = isProActive();
+  const pro = isProActive() || isProAnnual();
 
   const handleFiles = useCallback((selected: FileList | null) => {
     if (!selected) return;
     const imageFiles = Array.from(selected).filter((f) => f.type.startsWith('image/'));
     const remaining = limit - files.length;
-    const toAdd = imageFiles.slice(0, remaining);
 
     if (imageFiles.length > remaining) {
-      setShowProModal(true);
+      if (pro) {
+        // should not happen, but guard
+        const toAdd = imageFiles.slice(0, remaining);
+        setFiles((prev) => [...prev, ...toAdd]);
+        return;
+      }
+      setAdModalReason('limit');
+      setShowAdModal(true);
+      const toAdd = imageFiles.slice(0, remaining);
+      setFiles((prev) => [...prev, ...toAdd]);
+      return;
     }
 
-    setFiles((prev) => [...prev, ...toAdd]);
-  }, [files.length, limit]);
+    setFiles((prev) => [...prev, ...imageFiles]);
+  }, [files.length, limit, pro]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -91,7 +116,7 @@ export default function Home() {
     const results: ProcessedImage[] = [];
     for (let i = 0; i < files.length; i++) {
       try {
-        const result = await processImage(files[i], options);
+        const result = await processImage(files[i], options, rename);
         results.push(result);
       } catch (err) {
         console.error('Failed to process', files[i].name, err);
@@ -109,6 +134,12 @@ export default function Home() {
 
   const downloadAll = async () => {
     if (processed.length === 0) return;
+    if (!canDownloadZip()) {
+      setAdModalReason('zip');
+      setShowAdModal(true);
+      return;
+    }
+
     if (processed.length === 1) {
       downloadOne(processed[0]);
       return;
@@ -130,6 +161,11 @@ export default function Home() {
     demoRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const openPro = (plan: 'monthly' | 'annual') => {
+    setProModalPlan(plan);
+    setShowProModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       { /* Header */ }
@@ -149,7 +185,7 @@ export default function Home() {
           </nav>
 
           <button
-            onClick={() => setShowProModal(true)}
+            onClick={() => openPro('annual')}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
               pro
                 ? 'bg-amber-100 text-amber-700'
@@ -171,20 +207,20 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-sm font-medium mb-8">
             <Sparkles className="w-4 h-4" />
-            <span>Now with WebP conversion & watermarking</span>
+            <span>Now with e-commerce presets & batch rename</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 font-display leading-[1.1]">
-            Process hundreds of images
+            Resize & compress product
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">
-              in your browser
+              photos in one click
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Compress, resize, convert, and watermark image batches privately.
-            No uploads. No servers. No waiting.
+            Built for Shopify sellers, Instagram creators, and Xiaohongshu bloggers.
+            Process hundreds of images privately in your browser — no uploads, no waiting.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -196,7 +232,7 @@ export default function Home() {
               Try it free — no signup
             </button>
             <button
-              onClick={() => setShowProModal(true)}
+              onClick={() => openPro('annual')}
               className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-2"
             >
               See Pro features
@@ -279,7 +315,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
+          {!pro && <AdSlot label="Sponsored" />}
+
+          <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start mt-6">
             <div className="space-y-6">
               <div
                 onDrop={onDrop}
@@ -359,6 +397,10 @@ export default function Home() {
                 </div>
               )}
 
+              {!pro && files.length === 0 && processed.length === 0 && (
+                <AdSlot />
+              )}
+
               <ImageList
                 images={processed}
                 onRemove={removeProcessed}
@@ -377,7 +419,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-6">
-              <SettingsPanel options={options} onChange={setOptions} />
+              <SettingsPanel options={options} rename={rename} onChange={handleOptionsChange} />
 
               <div className="bg-gradient-to-br from-dark-800 to-dark-900 rounded-2xl p-6 text-white shadow-elevated">
                 <div className="flex items-center gap-2 mb-4">
@@ -387,18 +429,18 @@ export default function Home() {
                 <ul className="space-y-3 text-sm text-slate-300 mb-6">
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-brand-400" /> 500 images per batch</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-brand-400" /> Watermark & custom formats</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-brand-400" /> Priority support</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-brand-400" /> No file size limits</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-brand-400" /> ZIP export + batch rename</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-brand-400" /> Size templates for Shopify, IG, 小红书</li>
                 </ul>
                 <div className="text-4xl font-bold mb-5 font-display">
-                  $5
-                  <span className="text-base font-normal text-slate-400">/month</span>
+                  $29
+                  <span className="text-base font-normal text-slate-400">/year</span>
                 </div>
                 <button
-                  onClick={() => setShowProModal(true)}
+                  onClick={() => openPro('annual')}
                   className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all"
                 >
-                  {pro ? 'Pro Active' : 'Upgrade Now'}
+                  {pro ? 'Pro Active' : 'Choose Annual'}
                 </button>
               </div>
             </div>
@@ -408,79 +450,17 @@ export default function Home() {
 
       { /* Pricing */ }
       <section id="pricing" className="py-20 md:py-28">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 font-display">
               Simple, transparent pricing
             </h2>
             <p className="text-slate-600">
-              Start free. Upgrade when you need more power.
+              Start free. Boost with ads. Upgrade when you need more power.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            { /* Free */ }
-            <div className="p-8 rounded-2xl bg-white border border-slate-200">
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">Free</h3>
-              <div className="text-4xl font-bold text-slate-900 mb-6 font-display">$0</div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3 text-slate-600">
-                  <Check className="w-5 h-5 text-brand-600 shrink-0" />
-                  <span>5 images per batch</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-600">
-                  <Check className="w-5 h-5 text-brand-600 shrink-0" />
-                  <span>Compress, resize, convert</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-600">
-                  <Check className="w-5 h-5 text-brand-600 shrink-0" />
-                  <span>Browser-based privacy</span>
-                </li>
-              </ul>
-              <button
-                onClick={scrollToDemo}
-                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-xl transition-colors"
-              >
-                Get started free
-              </button>
-            </div>
-
-            { /* Pro */ }
-            <div className="relative p-8 rounded-2xl bg-gradient-to-br from-dark-800 to-dark-900 text-white shadow-elevated">
-              <div className="absolute -top-3 right-8 px-3 py-1 bg-brand-600 text-xs font-semibold rounded-full">
-                Most popular
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Pro</h3>
-              <div className="text-4xl font-bold mb-6 font-display">
-                $5
-                <span className="text-base font-normal text-slate-400">/month</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3 text-slate-300">
-                  <Check className="w-5 h-5 text-brand-400 shrink-0" />
-                  <span>500 images per batch</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-300">
-                  <Check className="w-5 h-5 text-brand-400 shrink-0" />
-                  <span>Advanced watermark & positioning</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-300">
-                  <Check className="w-5 h-5 text-brand-400 shrink-0" />
-                  <span>Priority email support</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-300">
-                  <Check className="w-5 h-5 text-brand-400 shrink-0" />
-                  <span>No file size limits</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => setShowProModal(true)}
-                className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all"
-              >
-                Upgrade to Pro
-              </button>
-            </div>
-          </div>
+          <PricingSection onUpgrade={() => openPro('annual')} />
         </div>
       </section>
 
@@ -497,6 +477,10 @@ export default function Home() {
               {
                 q: 'What file formats are supported?',
                 a: 'You can process JPEG, PNG, and WebP images. Output formats include JPEG, PNG, and WebP.',
+              },
+              {
+                q: 'How does Ad Boost work?',
+                a: 'Free users can watch a short ad up to 5 times per day to add 20 extra images to their batch limit or unlock ZIP download for the current session.',
               },
               {
                 q: 'Can I cancel my Pro subscription?',
@@ -520,7 +504,7 @@ export default function Home() {
               Ready to speed up your workflow?
             </h2>
             <p className="text-brand-100 mb-8 max-w-xl mx-auto">
-              Join thousands of creators who process images faster, safer, and privately.
+              Join creators and sellers who process images faster, safer, and privately.
             </p>
             <button
               onClick={scrollToDemo}
@@ -553,7 +537,16 @@ export default function Home() {
         </div>
       </footer>
 
-      <ProModal isOpen={showProModal} onClose={() => setShowProModal(false)} />
+      <ProModal isOpen={showProModal} onClose={() => setShowProModal(false)} plan={proModalPlan} />
+      <AdBoostModal
+        isOpen={showAdModal}
+        onClose={() => setShowAdModal(false)}
+        reason={adModalReason}
+        onUpgrade={() => {
+          setShowAdModal(false);
+          openPro('annual');
+        }}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ node_modules/
 .DS_Store
 *.tar.gz
 *.zip
+*.tsbuildinfo
 
 .vercel
 .gstack/

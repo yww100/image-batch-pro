@@ -1,20 +1,70 @@
-import { Crown } from 'lucide-react';
-import { ProcessOptions, OutputFormat } from '@/lib/imageProcessor';
-import { isProActive } from '@/lib/pro';
+import { useState } from 'react';
+import { Crown, Trash2, Save, FolderOpen } from 'lucide-react';
+import { ProcessOptions, OutputFormat, RenameOptions } from '@/lib/imageProcessor';
+import { isProActive, isProAnnual, Preset, getPresets, savePreset, deletePreset } from '@/lib/pro';
+import { SIZE_PRESETS, SizePreset, getCategories } from '@/lib/sizePresets';
 
 interface SettingsPanelProps {
   options: ProcessOptions;
-  onChange: (options: ProcessOptions) => void;
+  rename: RenameOptions;
+  onChange: (options: ProcessOptions, rename: RenameOptions) => void;
 }
 
-export default function SettingsPanel({ options, onChange }: SettingsPanelProps) {
-  const pro = isProActive();
-  const update = <K extends keyof ProcessOptions>(key: K, value: ProcessOptions[K]) => {
-    onChange({ ...options, [key]: value });
+export default function SettingsPanel({ options, rename, onChange }: SettingsPanelProps) {
+  const pro = isProActive() || isProAnnual();
+  const [presets, setPresets] = useState<Preset[]>(getPresets());
+  const [presetName, setPresetName] = useState('');
+
+  const updateOptions = <K extends keyof ProcessOptions>(key: K, value: ProcessOptions[K]) => {
+    onChange({ ...options, [key]: value }, rename);
+  };
+
+  const updateRename = <K extends keyof RenameOptions>(key: K, value: RenameOptions[K]) => {
+    onChange(options, { ...rename, [key]: value });
+  };
+
+  const applyPreset = (preset: SizePreset) => {
+    onChange({ ...options, maxWidth: preset.width, maxHeight: preset.height }, rename);
+  };
+
+  const handleSavePreset = () => {
+    const name = presetName.trim();
+    if (!name) return;
+    const preset: Preset = {
+      id: Math.random().toString(36).slice(2, 11),
+      name,
+      options: {
+        quality: options.quality,
+        format: options.format || 'image/jpeg',
+        maxWidth: options.maxWidth,
+        maxHeight: options.maxHeight,
+      },
+    };
+    savePreset(preset);
+    setPresets(getPresets());
+    setPresetName('');
+  };
+
+  const handleLoadPreset = (preset: Preset) => {
+    onChange(
+      {
+        ...options,
+        quality: preset.options.quality,
+        format: preset.options.format as OutputFormat,
+        maxWidth: preset.options.maxWidth,
+        maxHeight: preset.options.maxHeight,
+      },
+      rename
+    );
+  };
+
+  const handleDeletePreset = (id: string) => {
+    deletePreset(id);
+    setPresets(getPresets());
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-5">
+    <div className="bg-white rounded-2xl shadow-card border border-slate-100 p-5 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-slate-800">Processing Settings</h3>
         {!pro && (
@@ -35,9 +85,33 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
           min="10"
           max="100"
           value={options.quality}
-          onChange={(e) => update('quality', Number(e.target.value))}
+          onChange={(e) => updateOptions('quality', Number(e.target.value))}
           className="w-full accent-brand-600"
         />
+      </div>
+
+      { /* Size Presets */ }
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-slate-700">Size Template</label>
+        <select
+          value=""
+          onChange={(e) => {
+            const preset = SIZE_PRESETS.find((p) => p.name === e.target.value);
+            if (preset) applyPreset(preset);
+          }}
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+        >
+          <option value="">Pick a preset (Shopify, IG, 小红书...)</option>
+          {getCategories().map((category) => (
+            <optgroup key={category} label={category}>
+              {SIZE_PRESETS.filter((p) => p.category === category).map((preset) => (
+                <option key={preset.name} value={preset.name}>
+                  {preset.name} — {preset.width}×{preset.height}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
       </div>
 
       { /* Resize */ }
@@ -47,9 +121,9 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
           <input
             type="number"
             min="1"
-            placeholder="Keep original"
+            placeholder="Keep"
             value={options.maxWidth || ''}
-            onChange={(e) => update('maxWidth', e.target.value ? Number(e.target.value) : undefined)}
+            onChange={(e) => updateOptions('maxWidth', e.target.value ? Number(e.target.value) : undefined)}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
@@ -58,9 +132,9 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
           <input
             type="number"
             min="1"
-            placeholder="Keep original"
+            placeholder="Keep"
             value={options.maxHeight || ''}
-            onChange={(e) => update('maxHeight', e.target.value ? Number(e.target.value) : undefined)}
+            onChange={(e) => updateOptions('maxHeight', e.target.value ? Number(e.target.value) : undefined)}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
@@ -71,13 +145,46 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
         <label className="text-sm font-medium text-slate-700">Output Format</label>
         <select
           value={options.format || 'image/jpeg'}
-          onChange={(e) => update('format', e.target.value as OutputFormat)}
+          onChange={(e) => updateOptions('format', e.target.value as OutputFormat)}
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
         >
           <option value="image/jpeg">JPEG (best for photos)</option>
           <option value="image/png">PNG (best for transparency)</option>
           <option value="image/webp">WebP (best compression)</option>
         </select>
+      </div>
+
+      { /* Rename */ }
+      <div className="space-y-3 pt-2 border-t border-slate-100">
+        <div className="flex items-center gap-2">
+          <FolderOpen className="w-4 h-4 text-slate-500" />
+          <label className="text-sm font-medium text-slate-700">Batch Rename</label>
+        </div>
+        <input
+          type="text"
+          value={rename.pattern}
+          onChange={(e) => updateRename('pattern', e.target.value)}
+          placeholder="product-{n}-{date}"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-xs text-slate-600">Start number</label>
+            <input
+              type="number"
+              min="1"
+              value={rename.startIndex}
+              onChange={(e) => updateRename('startIndex', Math.max(1, Number(e.target.value)))}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+            />
+          </div>
+          <div className="flex items-end">
+            <p className="text-xs text-slate-500 pb-2">
+              Use <code className="bg-slate-100 px-1 rounded">{'{n}'}</code> and{' '}
+              <code className="bg-slate-100 px-1 rounded">{'{date}'}</code>
+            </p>
+          </div>
+        </div>
       </div>
 
       { /* Watermark */ }
@@ -93,7 +200,7 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
             type="checkbox"
             checked={!!options.watermark}
             onChange={(e) =>
-              update(
+              updateOptions(
                 'watermark',
                 e.target.checked
                   ? { text: 'Sample', opacity: 50, position: 'bottom-right' }
@@ -110,7 +217,7 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
               type="text"
               value={options.watermark.text}
               onChange={(e) =>
-                update('watermark', { ...options.watermark!, text: e.target.value })
+                updateOptions('watermark', { ...options.watermark!, text: e.target.value })
               }
               placeholder="Watermark text"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
@@ -126,7 +233,7 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
                 max="100"
                 value={options.watermark.opacity}
                 onChange={(e) =>
-                  update('watermark', {
+                  updateOptions('watermark', {
                     ...options.watermark!,
                     opacity: Number(e.target.value),
                   })
@@ -137,7 +244,7 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
             <select
               value={options.watermark.position}
               onChange={(e) =>
-                update('watermark', {
+                updateOptions('watermark', {
                   ...options.watermark!,
                   position: e.target.value as any,
                 })
@@ -154,10 +261,57 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
         )}
       </div>
 
+      { /* Saved Presets */ }
+      <div className="space-y-3 pt-2 border-t border-slate-100">
+        <div className="flex items-center gap-2">
+          <Save className="w-4 h-4 text-slate-500" />
+          <label className="text-sm font-medium text-slate-700">Saved Presets</label>
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={presetName}
+            onChange={(e) => setPresetName(e.target.value)}
+            placeholder="Preset name"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+          />
+          <button
+            onClick={handleSavePreset}
+            disabled={!presetName.trim()}
+            className="px-3 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-300 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            Save
+          </button>
+        </div>
+        {presets.length > 0 && (
+          <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+            {presets.map((preset) => (
+              <div
+                key={preset.id}
+                className="flex items-center justify-between p-2 rounded-lg border border-slate-100 hover:bg-slate-50"
+              >
+                <button
+                  onClick={() => handleLoadPreset(preset)}
+                  className="text-sm text-slate-700 hover:text-brand-600 text-left flex-1"
+                >
+                  {preset.name}
+                </button>
+                <button
+                  onClick={() => handleDeletePreset(preset.id)}
+                  className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {!pro && (
         <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3">
-          All settings work on the free plan for up to {isProActive() ? 500 : 5} images.
-          Upgrade to Pro to process 500 images per batch with the same settings.
+          Free plan: up to 5 images per batch. Ad Boost adds +20 images per watch.
+          Pro unlocks 500 images/batch, ZIP downloads, and removes ads.
         </p>
       )}
     </div>

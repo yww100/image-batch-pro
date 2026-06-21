@@ -106,9 +106,15 @@ async function applyWatermark(
   });
 }
 
+export interface RenameOptions {
+  pattern: string;
+  startIndex: number;
+}
+
 export async function processImage(
   file: File,
-  options: ProcessOptions
+  options: ProcessOptions,
+  rename?: RenameOptions
 ): Promise<ProcessedImage> {
   const compressionOptions: any = {
     fileType: options.format || file.type,
@@ -164,8 +170,20 @@ export async function processImage(
     url,
     originalSize: file.size,
     processedSize: compressedBlob.size,
-    fileName: file.name.replace(/\.[^/.]+$/, '') + getExtension(options.format || file.type),
+    fileName: rename
+      ? formatFileName(rename.pattern, rename.startIndex, options.format || file.type)
+      : file.name.replace(/\.[^/.]+$/, '') + getExtension(options.format || file.type),
   };
+}
+
+function formatFileName(pattern: string, index: number, mimeType: string): string {
+  const base = pattern
+    .replace(/\{n\}/g, String(index).padStart(3, '0'))
+    .replace(/\{date\}/g, new Date().toISOString().slice(0, 10).replace(/-/g, ''))
+    .replace(/[^a-zA-Z0-9-_]/g, '-')
+    .replace(/--+/g, '-')
+    .replace(/^-|-$/g, '');
+  return (base || 'image') + getExtension(mimeType);
 }
 
 function getExtension(mimeType: string): string {

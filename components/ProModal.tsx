@@ -1,25 +1,27 @@
 import { useState } from 'react';
 import { Mail, Copy, CheckCircle2 } from 'lucide-react';
-import { activatePro, isProActive, validateLicenseKey } from '@/lib/pro';
+import { activatePro, isProActive, isProAnnual, validateLicenseKey } from '@/lib/pro';
 
 interface ProModalProps {
   isOpen: boolean;
   onClose: () => void;
+  plan?: 'monthly' | 'annual';
 }
 
 const PAYPAL_EMAIL = '945893243@qq.com';
 const SUPPORT_EMAIL = '945893243@qq.com';
 
-export default function ProModal({ isOpen, onClose }: ProModalProps) {
+export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalProps) {
   const [code, setCode] = useState('');
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [copied, setCopied] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>(plan);
 
   if (!isOpen) return null;
 
   const handleActivate = () => {
     if (validateLicenseKey(code)) {
-      activatePro();
+      activatePro(selectedPlan === 'monthly');
       setStatus('success');
       setTimeout(() => {
         onClose();
@@ -36,14 +38,43 @@ export default function ProModal({ isOpen, onClose }: ProModalProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const alreadyPro = isProActive();
+  const alreadyPro = isProActive() || isProAnnual();
+  const price = selectedPlan === 'annual' ? 29 : 5;
+  const period = selectedPlan === 'annual' ? 'year' : 'month';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-slate-900">Upgrade to Pro</h2>
-          <p className="text-slate-600 mt-2">Process up to 500 images per batch, watermark, and priority support.</p>
+          <p className="text-slate-600 mt-2">Process up to 500 images per batch, watermark, ZIP export, and priority support.</p>
+        </div>
+
+        { /* Plan selector */ }
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setSelectedPlan('monthly')}
+            className={`p-3 rounded-xl border text-left transition-all ${
+              selectedPlan === 'monthly'
+                ? 'border-brand-600 bg-brand-50'
+                : 'border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="text-sm font-medium text-slate-700">Monthly</div>
+            <div className="text-xl font-bold text-slate-900">$5<span className="text-sm font-normal text-slate-500">/mo</span></div>
+          </button>
+          <button
+            onClick={() => setSelectedPlan('annual')}
+            className={`relative p-3 rounded-xl border text-left transition-all ${
+              selectedPlan === 'annual'
+                ? 'border-brand-600 bg-brand-50'
+                : 'border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="absolute -top-2 right-2 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-semibold rounded-full">Save 52%</div>
+            <div className="text-sm font-medium text-slate-700">Annual</div>
+            <div className="text-xl font-bold text-slate-900">$29<span className="text-sm font-normal text-slate-500">/year</span></div>
+          </button>
         </div>
 
         <div className="bg-brand-50 rounded-xl p-4 space-y-3">
@@ -56,8 +87,8 @@ export default function ProModal({ isOpen, onClose }: ProModalProps) {
             <span className="font-medium text-brand-700">500 images/batch</span>
           </div>
           <div className="flex justify-between pt-2 border-t border-brand-100">
-            <span className="text-slate-700">Price</span>
-            <span className="font-bold text-slate-900">$5 / month</span>
+            <span className="text-slate-700">You pay</span>
+            <span className="font-bold text-slate-900">${price} / {period}</span>
           </div>
         </div>
 
@@ -72,7 +103,7 @@ export default function ProModal({ isOpen, onClose }: ProModalProps) {
               <h3 className="font-semibold text-slate-900 text-sm">How to upgrade:</h3>
               <ol className="text-sm text-slate-600 space-y-2 list-decimal list-inside">
                 <li>
-                  Send <strong className="text-slate-900">$5 USD</strong> via PayPal to:
+                  Send <strong className="text-slate-900">${price} USD</strong> via PayPal to:
                 </li>
               </ol>
               <button
@@ -96,11 +127,11 @@ export default function ProModal({ isOpen, onClose }: ProModalProps) {
                 Note: PayPal may show "Sorry for the wait" for mainland China accounts. Try the PayPal app if the web page gets stuck.
               </p>
               <ol start={2} className="text-sm text-slate-600 space-y-2 list-decimal list-inside">
-                <li>Include note: <strong className="text-slate-900">"BatchImage Pro"</strong></li>
+                <li>Include note: <strong className="text-slate-900">"BatchImage Pro {selectedPlan === 'annual' ? 'Annual' : 'Monthly'}"</strong></li>
                 <li>
                   Email your PayPal receipt to{' '}
                   <a
-                    href={`mailto:${SUPPORT_EMAIL}?subject=BatchImage%20Pro%20Payment%20Proof&body=I%20have%20sent%20%245%20USD%20for%20BatchImage%20Pro.%20Here%20is%20my%20receipt:`}
+                    href={`mailto:${SUPPORT_EMAIL}?subject=BatchImage%20Pro%20${selectedPlan === 'annual' ? 'Annual' : 'Monthly'}%20Payment%20Proof&body=I%20have%20sent%20%24${price}%20USD%20for%20BatchImage%20Pro%20${selectedPlan === 'annual' ? 'Annual' : 'Monthly'}.%20Here%20is%20my%20receipt:`}
                     className="text-brand-600 hover:underline font-medium"
                   >
                     {SUPPORT_EMAIL}

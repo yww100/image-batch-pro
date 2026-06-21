@@ -14,7 +14,7 @@ export default function ImageList({ images, onRemove, onDownloadOne }: ImageList
   const totalSavings = calculateSavings(totalOriginal, totalProcessed);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
+    <div className="bg-white rounded-2xl shadow-card border border-slate-100 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-slate-800">
           Results ({images.length})

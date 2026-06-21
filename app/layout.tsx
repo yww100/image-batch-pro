@@ -2,20 +2,46 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'BatchImage - Bulk Image Compress, Resize & Convert in Browser',
+  title: 'BatchImage - Bulk Image Processing for E-commerce & Creators',
   description:
-    'Process hundreds of images in your browser. Batch compress, resize, convert formats, and add watermarks. No upload required.',
+    'Compress, resize, convert, watermark, rename and export image batches privately in your browser. No upload. Built for product photos, social media, and content teams.',
   keywords: [
-    'batch image compressor',
-    'bulk image resize',
+    'bulk image compressor',
+    'batch image resize',
+    'product photo optimizer',
     'image converter',
-    'watermark images',
-    'online image tool',
+    'batch watermark',
+    'webp converter',
+    'shopify image optimization',
+    'instagram image resize',
   ],
+  metadataBase: new URL('https://image-batch-pro-ivory.vercel.app'),
   openGraph: {
-    title: 'BatchImage - Bulk Image Processing Tool',
-    description: 'Compress, resize, convert and watermark images privately in your browser.',
+    title: 'BatchImage - Bulk Image Processing in Your Browser',
+    description:
+      'Compress, resize, convert, watermark, rename and export image batches privately. No upload required.',
+    url: 'https://image-batch-pro-ivory.vercel.app',
+    siteName: 'BatchImage',
+    images: [
+      {
+        url: '/og-image.svg',
+        width: 1200,
+        height: 630,
+        alt: 'BatchImage - Bulk image processing tool',
+      },
+    ],
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BatchImage - Bulk Image Processing in Your Browser',
+    description:
+      'Compress, resize, convert, watermark, rename and export image batches privately.',
+    images: ['/og-image.svg'],
+  },
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 };
 
