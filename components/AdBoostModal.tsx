@@ -31,11 +31,11 @@ export default function AdBoostModal({ isOpen, onClose, reason, onUpgrade }: AdB
     }, 2500);
   };
 
-  const title = reason === 'limit' ? 'Need more images?' : 'Want ZIP download?';
+  const title = reason === 'limit' ? '需要处理更多图片？' : '需要 ZIP 批量下载？';
   const description =
     reason === 'limit'
-      ? `Watch a short ad to process ${AD_BOOST_BONUS} more images this batch. Or upgrade to Pro for 500 per batch.`
-      : `Watch a short ad to unlock ZIP download for this session. Or upgrade to Pro for unlimited ZIP exports.`;
+      ? `看一段广告，本批可额外处理 ${AD_BOOST_BONUS} 张图片。或升级 Pro，每批 500 张。`
+      : `看一段广告，解锁本次 ZIP 批量下载。或升级 Pro，永久解锁 ZIP 导出。`;
 
   const boostsLeft = MAX_AD_BOOST_PER_DAY - getAdBoostUsedToday();
 
@@ -52,7 +52,7 @@ export default function AdBoostModal({ isOpen, onClose, reason, onUpgrade }: AdB
 
         {watched ? (
           <div className="text-center text-green-600 font-medium py-2">
-            ✅ +{AD_BOOST_BONUS} images added! Reloading...
+            ✅ 已增加 {AD_BOOST_BONUS} 张额度！正在刷新...
           </div>
         ) : (
           <div className="space-y-3">
@@ -62,7 +62,7 @@ export default function AdBoostModal({ isOpen, onClose, reason, onUpgrade }: AdB
               className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
               <Play className="w-4 h-4" />
-              {watching ? 'Playing ad...' : `Watch ad (+${AD_BOOST_BONUS} images)`}
+              {watching ? '广告播放中...' : `看广告（+${AD_BOOST_BONUS} 张）`}
             </button>
 
             <button
@@ -70,21 +70,21 @@ export default function AdBoostModal({ isOpen, onClose, reason, onUpgrade }: AdB
               className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
               <Crown className="w-4 h-4" />
-              Upgrade to Pro
+              升级 Pro
             </button>
           </div>
         )}
 
         <p className="text-xs text-center text-slate-500">
-          {canWatchAd() ? `${boostsLeft} ad boosts left today` : 'No more ad boosts today'}
-          {getAdBoostCount() > 0 && ` · ${getAdBoostCount()} bonus images available`}
+          {canWatchAd() ? `今日还剩 ${boostsLeft} 次广告激励` : '今日广告激励已用完'}
+          {getAdBoostCount() > 0 && ` · 当前可用 ${getAdBoostCount()} 张额外额度`}
         </p>
 
         <button
           onClick={onClose}
           className="w-full py-2 text-slate-500 hover:text-slate-700 text-sm"
         >
-          Maybe later
+          稍后再说
         </button>
       </div>
     </div>

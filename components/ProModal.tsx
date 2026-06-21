@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Mail, Copy, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Copy, CheckCircle2, ExternalLink } from 'lucide-react';
 import { activatePro, isProActive, isProAnnual, validateLicenseKey } from '@/lib/pro';
-import { getCheckoutUrl, hasLemonConfig } from '@/lib/lemon';
+import { getAfdianCheckoutUrl, hasAfdianConfig } from '@/lib/afdian';
 
 interface ProModalProps {
   isOpen: boolean;
@@ -37,17 +37,17 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
   };
 
   const alreadyPro = isProActive() || isProAnnual();
-  const price = selectedPlan === 'annual' ? 29 : 5;
-  const period = selectedPlan === 'annual' ? 'year' : 'month';
-  const checkoutUrl = getCheckoutUrl(selectedPlan);
-  const lemonReady = hasLemonConfig() && checkoutUrl;
+  const price = selectedPlan === 'annual' ? 199 : 35;
+  const period = selectedPlan === 'annual' ? '年' : '月';
+  const checkoutUrl = getAfdianCheckoutUrl(selectedPlan);
+  const afdianReady = hasAfdianConfig() && checkoutUrl;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900">Upgrade to Pro</h2>
-          <p className="text-slate-600 mt-2">Process up to 500 images per batch, watermark, ZIP export, and priority support.</p>
+          <h2 className="text-2xl font-bold text-slate-900">升级 BatchImage Pro</h2>
+          <p className="text-slate-600 mt-2">每批处理 500 张图、去广告、ZIP 导出、批量重命名、尺寸模板。</p>
         </div>
 
         { /* Plan selector */ }
@@ -60,8 +60,8 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
                 : 'border-slate-200 hover:border-slate-300'
             }`}
           >
-            <div className="text-sm font-medium text-slate-700">Monthly</div>
-            <div className="text-xl font-bold text-slate-900">$5<span className="text-sm font-normal text-slate-500">/mo</span></div>
+            <div className="text-sm font-medium text-slate-700">月付</div>
+            <div className="text-xl font-bold text-slate-900">¥35<span className="text-sm font-normal text-slate-500">/月</span></div>
           </button>
           <button
             onClick={() => setSelectedPlan('annual')}
@@ -71,52 +71,56 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
                 : 'border-slate-200 hover:border-slate-300'
             }`}
           >
-            <div className="absolute -top-2 right-2 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-semibold rounded-full">Save 52%</div>
-            <div className="text-sm font-medium text-slate-700">Annual</div>
-            <div className="text-xl font-bold text-slate-900">$29<span className="text-sm font-normal text-slate-500">/year</span></div>
+            <div className="absolute -top-2 right-2 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-semibold rounded-full">省 53%</div>
+            <div className="text-sm font-medium text-slate-700">年付</div>
+            <div className="text-xl font-bold text-slate-900">¥199<span className="text-sm font-normal text-slate-500">/年</span></div>
           </button>
         </div>
 
         <div className="bg-brand-50 rounded-xl p-4 space-y-3">
           <div className="flex justify-between">
-            <span className="text-slate-700">Free plan</span>
-            <span className="font-medium text-slate-900">5 images/batch</span>
+            <span className="text-slate-700">免费版</span>
+            <span className="font-medium text-slate-900">5 张/批</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-700">Pro plan</span>
-            <span className="font-medium text-brand-700">500 images/batch</span>
+            <span className="text-slate-700">Pro 版</span>
+            <span className="font-medium text-brand-700">500 张/批</span>
           </div>
           <div className="flex justify-between pt-2 border-t border-brand-100">
-            <span className="text-slate-700">You pay</span>
-            <span className="font-bold text-slate-900">${price} / {period}</span>
+            <span className="text-slate-700">实付</span>
+            <span className="font-bold text-slate-900">¥{price}/{period}</span>
           </div>
         </div>
 
         {alreadyPro ? (
           <div className="text-center text-green-600 font-medium py-2">
-            ✅ Pro is already active on this device.
+            ✅ Pro 已在此设备激活。
           </div>
         ) : (
           <div className="space-y-4">
-            {lemonReady ? (
+            {afdianReady ? (
               <a
                 href={checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors"
               >
-                Pay ${price} &amp; get instant license
+                去爱发电支付 ¥{price}（支付宝/微信）
                 <ExternalLink className="w-4 h-4" />
               </a>
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-                Automatic checkout is being configured. Please check back soon or contact support.
+                自动收款配置中，请稍后刷新或联系客服。
               </div>
             )}
 
+            <p className="text-xs text-slate-500">
+              支付时请在备注留下你的邮箱，系统会自动发送激活码。
+            </p>
+
             { /* Activation */ }
             <div className="space-y-3 pt-2 border-t border-slate-100">
-              <p className="text-sm text-slate-600">Already paid? Paste your license code:</p>
+              <p className="text-sm text-slate-600">已支付？粘贴激活码：</p>
               <div className="relative">
                 <input
                   type="text"
@@ -138,17 +142,17 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
                 )}
               </div>
               {status === 'error' && (
-                <p className="text-sm text-red-600 text-center">Invalid license key.</p>
+                <p className="text-sm text-red-600 text-center">激活码无效。</p>
               )}
               {status === 'success' && (
-                <p className="text-sm text-green-600 text-center">Pro activated! Reloading...</p>
+                <p className="text-sm text-green-600 text-center">Pro 已激活！正在刷新...</p>
               )}
               <button
                 onClick={handleActivate}
                 disabled={!code}
                 className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white font-semibold rounded-lg transition-colors"
               >
-                Activate Pro
+                激活 Pro
               </button>
             </div>
           </div>
@@ -158,7 +162,7 @@ export default function ProModal({ isOpen, onClose, plan = 'annual' }: ProModalP
           onClick={onClose}
           className="w-full py-2 text-slate-500 hover:text-slate-700 text-sm"
         >
-          Maybe later
+          稍后再说
         </button>
       </div>
     </div>

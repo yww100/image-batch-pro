@@ -10,57 +10,57 @@ export default function PricingSection({ onUpgrade }: PricingSectionProps) {
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-      { /* Free */ }
+      { /* 免费版 */ }
       <div className="p-6 rounded-2xl bg-white border border-slate-200 flex flex-col">
-        <h3 className="text-lg font-semibold text-slate-900">Free</h3>
-        <div className="text-3xl font-bold text-slate-900 my-2 font-display">$0</div>
-        <p className="text-sm text-slate-500 mb-4">Forever free for casual use</p>
+        <h3 className="text-lg font-semibold text-slate-900">免费版</h3>
+        <div className="text-3xl font-bold text-slate-900 my-2 font-display">¥0</div>
+        <p className="text-sm text-slate-500 mb-4">轻度使用永久免费</p>
         <ul className="space-y-3 mb-6 flex-1 text-sm text-slate-600">
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 5 images per batch</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Compress, resize, convert</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Single-file download</li>
-          <li className="flex items-start gap-2 text-slate-400"><span className="w-4 h-4 shrink-0 mt-0.5">×</span> Ads supported</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 每批 5 张图</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 压缩、改尺寸、转格式</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 单张下载</li>
+          <li className="flex items-start gap-2 text-slate-400"><span className="w-4 h-4 shrink-0 mt-0.5">×</span> 含广告</li>
         </ul>
         <button
           onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
           className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-xl transition-colors"
         >
-          Get started
+          免费开始
         </button>
       </div>
 
-      { /* Ad Boost */ }
+      { /* 广告激励 */ }
       <div className="p-6 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col">
-        <h3 className="text-lg font-semibold text-slate-900">Ad Boost</h3>
-        <div className="text-3xl font-bold text-slate-900 my-2 font-display">Free</div>
-        <p className="text-sm text-slate-500 mb-4">Watch ads to unlock more power</p>
+        <h3 className="text-lg font-semibold text-slate-900">广告激励</h3>
+        <div className="text-3xl font-bold text-slate-900 my-2 font-display">免费</div>
+        <p className="text-sm text-slate-500 mb-4">看广告解锁更多额度</p>
         <ul className="space-y-3 mb-6 flex-1 text-sm text-slate-600">
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> +20 images per ad watch</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Up to 5 boosts per day</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Unlock ZIP download</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Still ad supported</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 每次 +20 张额度</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 每天最多 5 次</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 解锁 ZIP 下载</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 仍含广告</li>
         </ul>
         <button
           onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
           className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition-colors"
         >
-          Try Ad Boost
+          试试广告激励
         </button>
       </div>
 
-      { /* Pro Monthly */ }
+      { /* Pro 月付 */ }
       <div className="p-6 rounded-2xl bg-white border border-slate-200 flex flex-col">
-        <h3 className="text-lg font-semibold text-slate-900">Pro Monthly</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Pro 月付</h3>
         <div className="text-3xl font-bold text-slate-900 my-2 font-display">
-          $5
-          <span className="text-sm font-normal text-slate-500">/mo</span>
+          ¥35
+          <span className="text-sm font-normal text-slate-500">/月</span>
         </div>
-        <p className="text-sm text-slate-500 mb-4">For active creators & teams</p>
+        <p className="text-sm text-slate-500 mb-4">适合经常处理图片的创作者</p>
         <ul className="space-y-3 mb-6 flex-1 text-sm text-slate-600">
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 500 images per batch</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> No ads</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> ZIP + batch rename + presets</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Size templates for Shopify, IG, 小红书</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 每批 500 张</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> 去广告</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> ZIP + 批量重命名 + 预设</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" /> Shopify、IG、小红书尺寸模板</li>
         </ul>
         <button
           onClick={onUpgrade}
@@ -69,26 +69,26 @@ export default function PricingSection({ onUpgrade }: PricingSectionProps) {
           }`}
           disabled={pro}
         >
-          {pro ? 'Active plan' : 'Choose Monthly'}
+          {pro ? '当前计划' : '选择月付'}
         </button>
       </div>
 
-      { /* Pro Annual */ }
+      { /* Pro 年付 */ }
       <div className="relative p-6 rounded-2xl bg-gradient-to-br from-dark-800 to-dark-900 text-white shadow-elevated flex flex-col">
         <div className="absolute -top-3 right-6 px-3 py-1 bg-brand-600 text-xs font-semibold rounded-full">
-          Best value
+          最划算
         </div>
-        <h3 className="text-lg font-semibold">Pro Annual</h3>
+        <h3 className="text-lg font-semibold">Pro 年付</h3>
         <div className="text-3xl font-bold my-2 font-display">
-          $29
-          <span className="text-sm font-normal text-slate-400">/year</span>
+          ¥199
+          <span className="text-sm font-normal text-slate-400">/年</span>
         </div>
-        <p className="text-sm text-slate-400 mb-4">Save 52% — everything in Pro</p>
+        <p className="text-sm text-slate-400 mb-4">省 53% — 包含全部 Pro 功能</p>
         <ul className="space-y-3 mb-6 flex-1 text-sm text-slate-300">
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> 500 images per batch</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> No ads</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> ZIP + batch rename + presets</li>
-          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> Priority support & all templates</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> 每批 500 张</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> 去广告</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> ZIP + 批量重命名 + 预设</li>
+          <li className="flex items-start gap-2"><Check className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" /> 优先支持 & 全部模板</li>
         </ul>
         <button
           onClick={onUpgrade}
@@ -97,7 +97,7 @@ export default function PricingSection({ onUpgrade }: PricingSectionProps) {
           }`}
           disabled={pro}
         >
-          {pro ? 'Active plan' : 'Choose Annual'}
+          {pro ? '当前计划' : '选择年付'}
         </button>
       </div>
     </div>
