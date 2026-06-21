@@ -1,4 +1,6 @@
+import { Crown } from 'lucide-react';
 import { ProcessOptions, OutputFormat } from '@/lib/imageProcessor';
+import { isProActive } from '@/lib/pro';
 
 interface SettingsPanelProps {
   options: ProcessOptions;
@@ -6,13 +8,21 @@ interface SettingsPanelProps {
 }
 
 export default function SettingsPanel({ options, onChange }: SettingsPanelProps) {
+  const pro = isProActive();
   const update = <K extends keyof ProcessOptions>(key: K, value: ProcessOptions[K]) => {
     onChange({ ...options, [key]: value });
   };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-5">
-      <h3 className="font-semibold text-slate-800">Processing Settings</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-slate-800">Processing Settings</h3>
+        {!pro && (
+          <span className="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-1 rounded-full">
+            Preview mode
+          </span>
+        )}
+      </div>
 
       { /* Quality */ }
       <div className="space-y-2">
@@ -51,7 +61,7 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
             placeholder="Keep original"
             value={options.maxHeight || ''}
             onChange={(e) => update('maxHeight', e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
       </div>
@@ -73,7 +83,12 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
       { /* Watermark */ }
       <div className="space-y-3 pt-2 border-t border-slate-100">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-slate-700">Watermark</label>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-slate-700">Watermark</label>
+            {!pro && (
+              <Crown className="w-3.5 h-3.5 text-amber-500" />
+            )}
+          </div>
           <input
             type="checkbox"
             checked={!!options.watermark}
@@ -138,6 +153,13 @@ export default function SettingsPanel({ options, onChange }: SettingsPanelProps)
           </div>
         )}
       </div>
+
+      {!pro && (
+        <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3">
+          All settings work on the free plan for up to {isProActive() ? 500 : 5} images.
+          Upgrade to Pro to process 500 images per batch with the same settings.
+        </p>
+      )}
     </div>
   );
 }

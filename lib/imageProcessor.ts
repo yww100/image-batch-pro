@@ -189,9 +189,16 @@ export function formatSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-export function calculateSavings(original: number, processed: number): string {
-  if (original === 0) return '0%';
+export function calculateSavings(original: number, processed: number): { text: string; isSaving: boolean } {
+  if (original === 0) return { text: '0%', isSaving: true };
   const saved = original - processed;
   const percent = (saved / original) * 100;
-  return percent.toFixed(1) + '%';
+  const text = Math.abs(percent).toFixed(1) + '%';
+  return { text, isSaving: percent >= 0 };
+}
+
+export function formatSavings(original: number, processed: number): string {
+  const { text, isSaving } = calculateSavings(original, processed);
+  if (isSaving) return `-${text}`;
+  return `+${text} (file grew)`;
 }

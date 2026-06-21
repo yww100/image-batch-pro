@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Copy, CheckCircle2 } from 'lucide-react';
-import { activatePro, isProActive } from '@/lib/pro';
+import { activatePro, isProActive, validateLicenseKey } from '@/lib/pro';
 
 interface ProModalProps {
   isOpen: boolean;
@@ -18,9 +18,7 @@ export default function ProModal({ isOpen, onClose }: ProModalProps) {
   if (!isOpen) return null;
 
   const handleActivate = () => {
-    // Demo mode: any non-empty code activates Pro.
-    // In production, replace with real license key validation.
-    if (code.trim().length > 3) {
+    if (validateLicenseKey(code)) {
       activatePro();
       setStatus('success');
       setTimeout(() => {
@@ -122,7 +120,7 @@ export default function ProModal({ isOpen, onClose }: ProModalProps) {
                   setCode(e.target.value);
                   setStatus('idle');
                 }}
-                placeholder="XXXX-XXXX-XXXX"
+                placeholder="BATCH-XXXX-XXXX"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-center tracking-widest focus:border-brand-500 focus:outline-none"
               />
               {status === 'error' && (

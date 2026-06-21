@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { Upload, Download, Zap, Crown, X, Image as ImageIcon, Shield, Lock, Clock, Gauge, Check, ArrowRight, Star, Users, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { Upload, Download, Zap, Crown, X, Image as ImageIcon, Shield, Lock, Gauge, Check, ArrowRight, Sparkles } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -30,9 +31,9 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: '10,000+', label: 'Images processed' },
-  { value: '0', label: 'Files uploaded to servers' },
-  { value: '4.9/5', label: 'User rating' },
+  { value: '0', label: 'Images leave your device' },
+  { value: '500', label: 'Max images per Pro batch' },
+  { value: '3', label: 'Output formats: JPG, PNG, WebP' },
 ];
 
 export default function Home() {
@@ -203,23 +204,21 @@ export default function Home() {
             </button>
           </div>
 
-          { /* Social proof */ }
+          { /* Trust badges */ }
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-500">
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-              ))}
-              <span className="ml-2 font-medium text-slate-700">4.9/5</span>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-brand-600" />
+              <span>Runs entirely in your browser</span>
             </div>
             <div className="hidden sm:block w-px h-4 bg-slate-300" />
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>Trusted by 2,000+ creators & teams</span>
+              <Lock className="w-4 h-4 text-brand-600" />
+              <span>No account required</span>
             </div>
             <div className="hidden sm:block w-px h-4 bg-slate-300" />
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span>100% private</span>
+              <Gauge className="w-4 h-4 text-brand-600" />
+              <span>Free for 5 images per batch</span>
             </div>
           </div>
         </div>
@@ -545,8 +544,8 @@ export default function Home() {
               <span className="font-bold text-slate-900">BatchImage</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-500">
-              <a href="#" className="hover:text-slate-800">Privacy</a>
-              <a href="#" className="hover:text-slate-800">Terms</a>
+              <Link href="/privacy" className="hover:text-slate-800">Privacy</Link>
+              <Link href="/terms" className="hover:text-slate-800">Terms</Link>
               <a href="https://github.com/yww100/image-batch-pro" target="_blank" rel="noopener noreferrer" className="hover:text-slate-800">GitHub</a>
             </div>
             <p className="text-sm text-slate-400">© 2026 BatchImage. All processing happens in your browser.</p>
