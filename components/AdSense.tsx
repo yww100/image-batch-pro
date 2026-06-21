@@ -11,7 +11,7 @@ interface AdSenseProps {
   format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical';
 }
 
-const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || '';
+const ADSENSE_CLIENT = 'ca-pub-9658414693188177';
 
 export default function AdSense({
   slot,

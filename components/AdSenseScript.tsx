@@ -2,7 +2,7 @@
 
 import Script from 'next/script';
 
-const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || '';
+const ADSENSE_CLIENT = 'ca-pub-9658414693188177';
 
 export default function AdSenseScript() {
   if (!ADSENSE_CLIENT) return null;

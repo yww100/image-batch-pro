@@ -15,12 +15,12 @@ export const metadata: Metadata = {
     'shopify image optimization',
     'instagram image resize',
   ],
-  metadataBase: new URL('https://image-batch-pro-ivory.vercel.app'),
+  metadataBase: new URL('https://image-batch-67ws84lg7-yww1.vercel.app'),
   openGraph: {
     title: 'BatchImage - Bulk Image Processing in Your Browser',
     description:
       'Compress, resize, convert, watermark, rename and export image batches privately. No upload required.',
-    url: 'https://image-batch-pro-ivory.vercel.app',
+    url: 'https://image-batch-67ws84lg7-yww1.vercel.app',
     siteName: 'BatchImage',
     images: [
       {
@@ -42,6 +42,9 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
     apple: '/favicon.svg',
+  },
+  verification: {
+    google: 'ca-pub-9658414693188177',
   },
 };
 
