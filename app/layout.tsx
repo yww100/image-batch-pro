@@ -45,9 +45,14 @@ export const metadata: Metadata = {
   },
 };
 
+import AdSenseScript from '@/components/AdSenseScript';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <AdSenseScript />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );
